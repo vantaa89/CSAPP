@@ -242,7 +242,8 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+  int neg_x = ~x + 1;
+  return (((x | neg_x) >> 31) + 1) & 1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -257,11 +258,23 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  int mask = 0x80000000;
-  int result = 0;
-  int condition = ~!(x & mask);
-  result = condition & 32 | ~condition & result;
-  return 0;
+  int sign = x >> 31;
+  x = (sign & ~x) | (~sign & x);
+  // binary search on bit level
+  int bit16 = !!(x >> 16) << 4; // whether or not the upper 16 bits are nonzero
+  x = x >> bit16;
+  
+  int bit8 = !!(x >> 8) << 3;
+  x = x >> bit8;
+  int bit4 = !!(x >> 4) << 2;
+  x = x >> bit4;
+  int bit2 = !!(x >> 2) << 1;
+  x = x >> bit2;
+  int bit1 = !!(x >> 1);
+  x = x >> bit1;
+  int bit0 = !!x;
+
+  return bit16 + bit8 + bit4 + bit2 + bit1 + bit0 + 1;
 }
 //float
 /* 
@@ -280,26 +293,28 @@ unsigned floatScale2(unsigned uf) {
   unsigned exp = ((exp_mask & uf)>>23);
   if(exp == 0){
     unsigned mantissa_mask = (~0) ^ exp_mask ^ (1<<31);
-    unsigned mantissa2 = uf & mantissa_mask;
-    if(mantissa2 & (1<<19)){    
-      uf &= 1<<31;
-      uf |= 1;
-      uf |= (mantissa2 << 1) & mantissa_mask;
+    unsigned mantissa = uf & mantissa_mask;
+    uf &= 1<<31;
+    mantissa <<= 1;
+    if(mantissa & (1<<23)){
+      uf |= mantissa & mantissa_mask;
+	    exp += 1;
+	    uf |= exp << 23;
     } else {
-      mantissa2 = mantissa2 << 1;
       uf &= ~mantissa_mask;
-      uf |= mantissa2;
+      uf |= mantissa;
     }
-  }
-  if(exp <= 253){
+  } else if(exp <= 253){
     uf &= ~exp_mask;
 	  exp += 1;
     uf |= (exp << 23);
   } else if (exp == 254){
-	return exp_mask;
+	  uf |= exp_mask;
   } else {
-	return uf;
+    // Nothing to do
   }
+
+  return uf;
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
@@ -313,8 +328,28 @@ unsigned floatScale2(unsigned uf) {
  *   Max ops: 30
  *   Rating: 4
  */
+
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  int exp_mask = 0xFF << 23;
+  int exp = ((exp_mask & uf)>>23);
+  unsigned man = (uf & ~(1<<31)) & ~exp_mask;
+  int sign = uf>>31;
+  int ans = 0;
+  if(exp-127 < 0){
+    ans = 0;
+  } else if (exp-127 < 31){
+    int n = exp-127;
+	  ans |= (1 << n);
+    int i = 0;
+    while(i<23 && n-i-1>=0){
+	  int man_digit = man >> (22-i);
+      ans |= man_digit << (n-i-1);
+	  ++i;
+    }
+  } else {
+    ans = 1 << 31;
+  }
+  return sign?((~ans) + 1):ans;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
@@ -330,5 +365,13 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  unsigned uf = 0;
+  if(-149 <= x && x <= -127){
+    uf |= (1 << (x+117));
+  } else if (-127 <= x && x <= 127){
+	uf |= (x + 127) << 23;
+  } else if (x > 127) {
+	uf |= ((1 << 8) - 1) << 23;
+  }
+  return uf;
 }
