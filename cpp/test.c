@@ -1,52 +1,76 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
-unsigned floatScale2(unsigned uf) {
-  int exp_mask = 0xFF << 23;
-  unsigned exp = ((exp_mask & uf)>>23);
-  if(exp == 0){
-    unsigned mantissa_mask = (~0) ^ exp_mask ^ (1<<31);
-    unsigned mantissa2 = uf & mantissa_mask;
-    if(mantissa2 & (1<<19)){    
-      uf &= 1<<31;
-      uf |= 1;
-      uf |= (mantissa2 << 1) & mantissa_mask;
-    } else {
-      mantissa2 = mantissa2 << 1;
-      uf &= ~mantissa_mask;
-      uf |= mantissa2;
-    }
-  }
-  if(exp <= 253){
-    uf &= ~exp_mask;
-	  exp += 1;
-    uf |= (exp << 23);
-  } else if (exp == 254){
-	return exp_mask;
-  } else {
-	return uf;
-  }
+
+void print_bin_f(unsigned n, int i){
+	if(i == 32) return;
+	print_bin_f(n/2, i+1);
+	if(i==22||i==30) printf(" ");
+	printf("%d", n%2);
 }
 
 void print_bin(unsigned n, int i){
 	if(i == 32) return;
 	print_bin(n/2, i+1);
-	if(i==22||i==30) printf(" ");
+	// if(i==22||i==30) printf(" ");
 	printf("%d", n%2);
 }
 
+int floatFloat2Int(unsigned uf) {
+  int exp_mask = 0xFF << 23;
+  int exp = ((exp_mask & uf)>>23);
+  unsigned man = (uf & ~(1<<31)) & ~exp_mask;
+  int sign = uf>>31;
+  int ans = 0;
+  print_bin(ans, 0);
+  printf("\n");
+  if(exp-127 < 0){
+    ans = 0;
+  } else if (exp-127 < 31){
+    int n = exp-127;
+	ans |= (1 << n);
+	print_bin(ans, 0);
+    printf("\n");
+    int i = 0;
+    while(i<23 && n-i-1>=0){
+	  int man_digit = man >> (22-i);
+      ans |= man_digit << (n-i-1);
+	  print_bin(ans, 0);
+      printf("\n");
+	  ++i;
+    }
+  } else {
+    ans = 1 << 31;
+  }
+  return sign?((~ans) + 1):ans;
+}
+
+
+union {
+	unsigned u;
+	float f;
+} val, a;
+
 int main() {
-	// unsigned exp_mask = ((0x7<<8) + 0xFF) << 20;
-	// print_bin(exp_mask, 0);
-	// printf("\n");
 	int i;
-	for(i = 0; i < 1; ++i){
-		unsigned a = 0x800000; //rand();
-		unsigned val = floatScale2(a);
-		print_bin(a, 0);	
-		printf("\n");
-		print_bin(val, 0);
-		printf("\n%d %d", a, val);
+	int n = i;
+	// a.f = (float)rand();
+	a.u = 0x3f800001u;
+	printf("%f\n", a.f);
+	int val = (int) a.f;
+	printf("\nanswer: \n");
+	print_bin(val, 0);
+	printf("\n");
+	int cvt =  floatFloat2Int(a.u);
+	if(cvt != val){
+		printf("original float: \n");
+		print_bin_f(a.u, 0);
+		printf("\nconverted integer: \n");
+		print_bin(cvt, 0);
+		// printf("\n%8x\n%8x", cvt, val);
+	} else {
+		printf("\nclear");
 	}
 	/*
 	cout << howManyBits(12) << endl;
