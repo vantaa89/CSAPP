@@ -1,10 +1,10 @@
 # CSAPP
 ## Solutions for CS:APP 3e Assignments
 
-![](https://geps.dev/progress/10?dangerColor=006600&warningColor=006600&successColor=006600)
+![](https://geps.dev/progress/20?dangerColor=006600&warningColor=006600&successColor=006600)
 
 1. _Data Lab_ (Solved)
-1. Bomb Lab
+1. _Bomb Lab_ (Solved)
 1. Attack Lab
 1. Buffer Lab
 1. Architecture Lab
