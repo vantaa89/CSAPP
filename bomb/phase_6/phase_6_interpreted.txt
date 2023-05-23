@@ -1,0 +1,83 @@
+    rsp = malloc(80);
+    r13 = rsp
+    rsi = rsp
+    rsp[0:24] = read_six_numbers()  // each 4 bytes
+    r14 = rsp
+    r12 = 0
+.L3 (401114)    // 바깥 for. r12로 돌림
+    rbp = r13
+    a = *r13
+    --a
+    if(a > 5)
+        explode_bomb()
+    ++r12
+    if(r12 == 6)
+        goto .L1
+    b = r12
+.L2 (401135):       // 안쪽 for. b로 돌림 
+    a = b (with sign extension)
+    a = rsp[4a];    // -> a-th alphabet of input
+    if(*rbp == a)
+        explode_bomb()
+    ++b
+    if(b <= 5)
+        goto .L2    // 안쪽 for. b로 돌림
+    r13 += 4 
+    goto .L3    // 바깥 for. r12로 돌림
+.L1 (401153):
+    rsi = rsp + 24
+    a = r14
+    c = 7
+.L4 (401160):
+    d = c
+    d -= *rax
+    *a = d
+    a += 4
+    if(rsi != a)
+        goto .L4
+    
+    esi = 0
+    goto .L5
+.L6 (401176)
+    d = *(d + 8)
+    ++a
+    if (a != c)
+        goto .L6
+    goto .L7
+.L9 (401183)
+    d = 0x6032d0
+.L7 (401188)
+    rsi += 4
+    if(rsi == 24)
+        goto .L8
+.L5 (401197)
+    c = *(rsp+rsi)
+    if (c <= 1)
+        goto .L9
+    a = 1
+    d = 0x6032d0
+    goto .L6
+.L8 (4011ab)
+    b = *(rsp + 32)
+    a = rsp + 40
+    rsi = rsp + 80
+    c = b
+    d = *a
+    *(c + 8) = d
+    a += 8
+    if(a == rsi)
+        goto .L9
+    c = d
+    goto 4011bd
+.L9 (4011d2)
+    *(d + 8) = 0
+    b = 5
+    a = *(b + 8)
+    a = *a
+    if(*b >= a)
+        explode_bomb()
+    b = *(b + 8)
+    bp--
+    if(bp != 0)
+        goto 4011df
+    deallocate rsp

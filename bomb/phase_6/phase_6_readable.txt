@@ -1,0 +1,76 @@
+    rsp = malloc(80);
+    r13 = rsp
+    rsi = rsp
+    rsp[0:24] = read_six_numbers()  // each 4 bytes
+    r14 = rsp
+
+    // 6번 반복, r13이 input[0:6]을 쭉 돌면서, a는 r13을 시작으로 a=input[a]를 대입하며 순회
+    // 만약 처음으로 다시 돌아오면 폭탄이 터짐
+
+    for(i = 0; i < 6; ++i) {    //.L3. loop by i
+        rbp = r13
+        a = *r13
+        --a
+        if(a > 5)
+            explode_bomb()
+        for(b = i; b <= 5; ++b) {
+            a = b
+            a = input[a]; // rsp[4a]
+            if(*rbp == a) explode_bomb()
+            ++b 
+        } 
+        r13 += 4
+    }
+    rsi = rsp + 24  // end of input
+    a = r14 // rsp, input
+    c = 7
+
+    // array를 순회하면서 7에서 현재 원소를 빼줌
+    while(a != rsi){    // L4. i.e. before the end of the input arr
+        *a = 7 - *a;    (c=7)
+        a += 4  // next input element
+    }
+
+    rsi = 0
+    c = *(rsp+rsi)
+    if (c <= 1)
+        goto .L11
+    a = 1
+    d = 0x6032d0
+    
+    do {
+        d = *(d + 8)
+        ++a
+    } while (a != c)
+    goto .L7
+
+.L11 (401183)
+    d = 0x6032d0
+
+.L7 (401188)
+    rsi += 4
+    if(rsi == 24)
+        goto .L8
+
+.L8 (4011ab)
+    b = *(rsp + 32)
+    a = rsp + 40
+    rsi = rsp + 80
+    c = b
+.L10 (4011bd):
+    d = *a
+    *(c + 8) = d
+    a += 8
+    if(a == rsi)
+        goto .L9
+    c = d
+    goto .L10
+.L9 (4011d2)
+    *(d + 8) = 0
+
+for(bp = 5; bp >= 0; --bp){
+    a = **(b + 8)   // next node
+    if(*b >= a)
+        explode_bomb()
+    b = *(b+8)
+}
