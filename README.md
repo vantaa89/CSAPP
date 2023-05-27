@@ -1,11 +1,11 @@
 # CSAPP
 ## Solutions for CS:APP 3e Assignments
 
-![](https://geps.dev/progress/22.2?dangerColor=006600&warningColor=006600&successColor=006600)
+![](https://geps.dev/progress/33.3?dangerColor=006600&warningColor=006600&successColor=006600)
 
 1. **Data Lab (Solved)**
-1. **Bomb Lab_ (Solved)**
-1. Attack Lab
+1. **Bomb Lab (Solved)**
+1. **Attack Lab (Solved)**
 1. Architecture Lab
 1. Cache Lab
 1. Performance Lab
