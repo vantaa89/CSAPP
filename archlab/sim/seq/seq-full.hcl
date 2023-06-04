@@ -106,29 +106,29 @@ word ifun = [
 
 bool instr_valid = icode in 
 	{ INOP, IHALT, IRRMOVQ, IIRMOVQ, IRMMOVQ, IMRMOVQ,
-	       IOPQ, IJXX, ICALL, IRET, IPUSHQ, IPOPQ };
+	       IOPQ, IJXX, ICALL, IRET, IPUSHQ, IPOPQ, IIADDQ };		## added IIADDQ
 
 # Does fetched instruction require a regid byte?
 bool need_regids =
 	icode in { IRRMOVQ, IOPQ, IPUSHQ, IPOPQ, 
-		     IIRMOVQ, IRMMOVQ, IMRMOVQ };
+		     IIRMOVQ, IRMMOVQ, IMRMOVQ, IIADDQ };					## added IIADDQ, since it requires rB
 
 # Does fetched instruction require a constant word?
 bool need_valC =
-	icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ, IJXX, ICALL };
+	icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ, IJXX, ICALL, IIADDQ };	## added IIADDQ, since it requires valC
 
 ################ Decode Stage    ###################################
 
-## What register should be used as the A source?
+## What register should be used as the A source?					## does not involve srcA/rA
 word srcA = [
 	icode in { IRRMOVQ, IRMMOVQ, IOPQ, IPUSHQ  } : rA;
 	icode in { IPOPQ, IRET } : RRSP;
 	1 : RNONE; # Don't need register
-];
+];																	
 
-## What register should be used as the B source?
+## What register should be used as the B source?					## added IIADDQ
 word srcB = [
-	icode in { IOPQ, IRMMOVQ, IMRMOVQ  } : rB;
+	icode in { IOPQ, IRMMOVQ, IMRMOVQ, IIADDQ  } : rB;
 	icode in { IPUSHQ, IPOPQ, ICALL, IRET } : RRSP;
 	1 : RNONE;  # Don't need register
 ];
@@ -136,23 +136,23 @@ word srcB = [
 ## What register should be used as the E destination?
 word dstE = [
 	icode in { IRRMOVQ } && Cnd : rB;
-	icode in { IIRMOVQ, IOPQ} : rB;
+	icode in { IIRMOVQ, IOPQ, IIADDQ} : rB;							## added IIADDQ, since rB must be written back after the addition
 	icode in { IPUSHQ, IPOPQ, ICALL, IRET } : RRSP;
 	1 : RNONE;  # Don't write any register
 ];
 
-## What register should be used as the M destination?
+## What register should be used as the M destination?				## does not involve memory reference
 word dstM = [
 	icode in { IMRMOVQ, IPOPQ } : rA;
 	1 : RNONE;  # Don't write any register
-];
+];												
 
 ################ Execute Stage   ###################################
 
 ## Select input A to ALU
 word aluA = [
 	icode in { IRRMOVQ, IOPQ } : valA;
-	icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ } : valC;
+	icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ, IIADDQ } : valC;			## valC as the first operand
 	icode in { ICALL, IPUSHQ } : -8;
 	icode in { IRET, IPOPQ } : 8;
 	# Other instructions don't need ALU
@@ -161,7 +161,7 @@ word aluA = [
 ## Select input B to ALU
 word aluB = [
 	icode in { IRMMOVQ, IMRMOVQ, IOPQ, ICALL, 
-		      IPUSHQ, IRET, IPOPQ } : valB;
+		      IPUSHQ, IRET, IPOPQ, IIADDQ } : valB;					# valB = R[rB] as the second operand
 	icode in { IRRMOVQ, IIRMOVQ } : 0;
 	# Other instructions don't need ALU
 ];
@@ -169,13 +169,13 @@ word aluB = [
 ## Set the ALU function
 word alufun = [
 	icode == IOPQ : ifun;
-	1 : ALUADD;
+	1 : ALUADD;														# What IIADDQ requires is addition; no change
 ];
 
 ## Should the condition codes be updated?
-bool set_cc = icode in { IOPQ };
+bool set_cc = icode in { IOPQ, IIADDQ };							# change condition code
 
-################ Memory Stage    ###################################
+################ Memory Stage    ###################################		# no memory reference for IIADDQ
 
 ## Set read control signal
 bool mem_read = icode in { IMRMOVQ, IPOPQ, IRET };
