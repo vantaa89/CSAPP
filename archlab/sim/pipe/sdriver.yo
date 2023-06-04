@@ -42,8 +42,8 @@
                             | 	
 0x074:                      | Loop2: 
 0x074: 50a70000000000000000 | 	mrmovq (%rdi), %r10	# read val from src...
-0x07e: 40a60000000000000000 | 	rmmovq %r10, (%rsi)	# ...and store it to dst
-0x088: 50b70800000000000000 | 	mrmovq 8(%rdi), %r11	# read val from src...
+0x07e: 50b70800000000000000 | 	mrmovq 8(%rdi), %r11	# read val from src...
+0x088: 40a60000000000000000 | 	rmmovq %r10, (%rsi)	# ...and store it to dst
 0x092: 40b60800000000000000 | 	rmmovq %r11, 8(%rsi)	# ...and store it to dst
 0x09c: 62aa                 | 	andq %r10, %r10		# val <= 0?
 0x09e: 71a900000000000000   | 	jle Npos21		# if so, goto Npos:
@@ -88,8 +88,8 @@
 0x100:                      | 	.align 8
 0x100:                      | src:
 0x100: ffffffffffffffff     | 	.quad -1
-0x108: feffffffffffffff     | 	.quad -2
-0x110: 0300000000000000     | 	.quad 3
+0x108: 0200000000000000     | 	.quad 2
+0x110: fdffffffffffffff     | 	.quad -3
 0x118: 0400000000000000     | 	.quad 4
 0x120: fadebc0000000000     | 	.quad 0xbcdefa # This shouldn't get moved
                             | 

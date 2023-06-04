@@ -42,8 +42,8 @@ ncopy:
 	
 Loop2: 
 	mrmovq (%rdi), %r10	# read val from src...
-	rmmovq %r10, (%rsi)	# ...and store it to dst
 	mrmovq 8(%rdi), %r11	# read val from src...
+	rmmovq %r10, (%rsi)	# ...and store it to dst
 	rmmovq %r11, 8(%rsi)	# ...and store it to dst
 	andq %r10, %r10		# val <= 0?
 	jle Npos21		# if so, goto Npos:
@@ -88,8 +88,8 @@ EndFun:
 	.align 8
 src:
 	.quad -1
-	.quad -2
-	.quad 3
+	.quad 2
+	.quad -3
 	.quad 4
 	.quad 0xbcdefa # This shouldn't get moved
 
