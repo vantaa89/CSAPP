@@ -17,47 +17,22 @@ ncopy:
 # You can modify this portion
 	# Loop header
 	xorq %rax,%rax		# count = 0;
-	irmovq $1, %r8
-	irmovq $2, %r12
-	irmovq $8, %r9
-	irmovq $0x10, %r13
-	andq %rdx, %rdx
-	jle Done
-	rrmovq %rdx, %r14
-	subq %r12, %r14
-	jle Loop1
-	
-Loop2: 
-	mrmovq (%rdi), %r10	# read val from src...
-	rmmovq %r10, (%rsi)	# ...and store it to dst
-	mrmovq 8(%rdi), %r11	# read val from src...
-	rmmovq %r11, 8(%rsi)	# ...and store it to dst
-	andq %r10, %r10		# val <= 0?
-	jle Npos21		# if so, goto Npos:
-	addq %r8, %rax		# count++
-Npos21:	
-	andq %r11, %r11		# val <= 0?
-	jle Npos22		# if so, goto Npos:
-	addq %r8, %rax		# count++
-Npos22:
-	subq %r12, %rdx
-	addq %r13, %rdi
-	addq %r13, %rsi
-	rrmovq %rdx, %r10
-	subq %r12, %r10
-	jg Loop2
+	andq %rdx,%rdx		# len <= 0?
+	jle Done		# if so, goto Done:
 
-Loop1:	mrmovq (%rdi), %r10	# read val from src...
+Loop:	mrmovq (%rdi), %r10	# read val from src...
 	rmmovq %r10, (%rsi)	# ...and store it to dst
 	andq %r10, %r10		# val <= 0?
-	jle Npos1		# if so, goto Npos:
-	addq %r8, %rax		# count++
-Npos1:	
-	subq %r8, %rdx		# len--
-	addq %r9, %rdi		# src++
-	addq %r9, %rsi		# dst++
+	jle Npos		# if so, goto Npos:
+	irmovq $1, %r10
+	addq %r10, %rax		# count++
+Npos:	irmovq $1, %r10
+	subq %r10, %rdx		# len--
+	irmovq $8, %r10
+	addq %r10, %rdi		# src++
+	addq %r10, %rsi		# dst++
 	andq %rdx,%rdx		# len > 0?
-	jg Loop1			# if so, goto Loop:
+	jg Loop			# if so, goto Loop:
 ##################################################################
 # Do not modify the following section of code
 # Function epilogue.
