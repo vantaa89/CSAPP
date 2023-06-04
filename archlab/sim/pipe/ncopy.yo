@@ -1,0 +1,101 @@
+                            | #/* $begin ncopy-ys */
+                            | ##################################################################
+                            | # ncopy.ys - Copy a src block of len words to dst.
+                            | # Return the number of positive words (>0) contained in src.
+                            | #
+                            | # Include your name and ID here.
+                            | #
+                            | # Describe how and why you modified the baseline code.
+                            | #
+                            | ##################################################################
+                            | # Do not modify this portion
+                            | # Function prologue.
+                            | # %rdi = src, %rsi = dst, %rdx = len
+0x000:                      | ncopy:
+                            | 
+                            | ##################################################################
+                            | # You can modify this portion
+                            | 	# Loop header
+0x000: 6300                 | 	xorq %rax,%rax		# count = 0;
+0x002: 6222                 | 	andq %rdx, %rdx
+0x004: 71ef01000000000000   | 	jle Done
+0x00d: 202e                 | 	rrmovq %rdx, %r14
+0x00f: c0fef8ffffffffffffff | 	iaddq $-8, %r14
+0x019: 719d01000000000000   | 	jle Loop1
+                            | 	
+0x022:                      | Loop2: 
+0x022: 50870000000000000000 | 	mrmovq (%rdi), %r8	# read val from src...
+0x02c: 50970800000000000000 | 	mrmovq 8(%rdi), %r9	# read val from src...
+0x036: 50a71000000000000000 | 	mrmovq 16(%rdi), %r10	# read val from src...
+0x040: 50b71800000000000000 | 	mrmovq 24(%rdi), %r11	# read val from src...
+0x04a: 50c72000000000000000 | 	mrmovq 32(%rdi), %r12	# read val from src...
+0x054: 50d72800000000000000 | 	mrmovq 40(%rdi), %r13	# read val from src...
+0x05e: 50e73000000000000000 | 	mrmovq 48(%rdi), %r14	# read val from src...
+0x068: 50373800000000000000 | 	mrmovq 56(%rdi), %rbx	# read val from src...
+0x072: 40860000000000000000 | 	rmmovq %r8, (%rsi)	# ...and store it to dst
+0x07c: 40960800000000000000 | 	rmmovq %r9, 8(%rsi)	# ...and store it to dst
+0x086: 40a61000000000000000 | 	rmmovq %r10, 16(%rsi)	# ...and store it to dst
+0x090: 40b61800000000000000 | 	rmmovq %r11, 24(%rsi)	# ...and store it to dst
+0x09a: 40c62000000000000000 | 	rmmovq %r12, 32(%rsi)	# ...and store it to dst
+0x0a4: 40d62800000000000000 | 	rmmovq %r13, 40(%rsi)	# ...and store it to dst
+0x0ae: 40e63000000000000000 | 	rmmovq %r14, 48(%rsi)	# ...and store it to dst
+0x0b8: 40363800000000000000 | 	rmmovq %rbx, 56(%rsi)	# ...and store it to dst
+0x0c2: 6288                 | 	andq %r8, %r8		# val <= 0?
+0x0c4: 71d700000000000000   | 	jle Npos21		# if so, goto Npos:
+0x0cd: c0f00100000000000000 | 	iaddq $1, %rax		# count++
+0x0d7:                      | Npos21:	
+0x0d7: 6299                 | 	andq %r9, %r9		# val <= 0?
+0x0d9: 71ec00000000000000   | 	jle Npos22		# if so, goto Npos:
+0x0e2: c0f00100000000000000 | 	iaddq $1, %rax		# count++
+0x0ec:                      | Npos22:	
+0x0ec: 62aa                 | 	andq %r10, %r10		# val <= 0?
+0x0ee: 710101000000000000   | 	jle Npos23		# if so, goto Npos:
+0x0f7: c0f00100000000000000 | 	iaddq $1, %rax		# count++
+0x101:                      | Npos23:	
+0x101: 62bb                 | 	andq %r11, %r11		# val <= 0?
+0x103: 711601000000000000   | 	jle Npos24		# if so, goto Npos:
+0x10c: c0f00100000000000000 | 	iaddq $1, %rax		# count++
+0x116:                      | Npos24:
+0x116: 62cc                 | 	andq %r12, %r12		# val <= 0?
+0x118: 712b01000000000000   | 	jle Npos25		# if so, goto Npos:
+0x121: c0f00100000000000000 | 	iaddq $1, %rax		# count++
+0x12b:                      | Npos25:	
+0x12b: 62dd                 | 	andq %r13, %r13		# val <= 0?
+0x12d: 714001000000000000   | 	jle Npos26		# if so, goto Npos:
+0x136: c0f00100000000000000 | 	iaddq $1, %rax		# count++
+0x140:                      | Npos26:	
+0x140: 62ee                 | 	andq %r14, %r14		# val <= 0?
+0x142: 715501000000000000   | 	jle Npos27		# if so, goto Npos:
+0x14b: c0f00100000000000000 | 	iaddq $1, %rax		# count++
+0x155:                      | Npos27:	
+0x155: 6233                 | 	andq %rbx, %rbx		# val <= 0?
+0x157: 716a01000000000000   | 	jle Npos28		# if so, goto Npos:
+0x160: c0f00100000000000000 | 	iaddq $1, %rax		# count++
+0x16a:                      | Npos28:
+0x16a: c0f2f8ffffffffffffff | 	iaddq $-8, %rdx
+0x174: c0f74000000000000000 | 	iaddq $64, %rdi
+0x17e: c0f64000000000000000 | 	iaddq $64, %rsi
+0x188: 202a                 | 	rrmovq %rdx, %r10
+0x18a: c0faf8ffffffffffffff | 	iaddq $-8, %r10
+0x194: 762200000000000000   | 	jg Loop2
+                            | 
+0x19d: 50a70000000000000000 | Loop1:	mrmovq (%rdi), %r10	# read val from src...
+0x1a7: 40a60000000000000000 | 	rmmovq %r10, (%rsi)	# ...and store it to dst
+0x1b1: 62aa                 | 	andq %r10, %r10		# val <= 0?
+0x1b3: 71c601000000000000   | 	jle Npos1		# if so, goto Npos:
+0x1bc: c0f00100000000000000 | 	iaddq $1, %rax		# count++
+0x1c6:                      | Npos1:	
+0x1c6: c0f2ffffffffffffffff | 	iaddq $-1, %rdx		# len--
+0x1d0: c0f70800000000000000 | 	iaddq $8, %rdi		# src++
+0x1da: c0f60800000000000000 | 	iaddq $8, %rsi		# dst++
+0x1e4: 6222                 | 	andq %rdx,%rdx		# len > 0?
+0x1e6: 769d01000000000000   | 	jg Loop1			# if so, goto Loop:
+                            | ##################################################################
+                            | # Do not modify the following section of code
+                            | # Function epilogue.
+0x1ef:                      | Done:
+0x1ef: 90                   | 	ret
+                            | ##################################################################
+                            | # Keep the following label at the end of your function
+0x1f0:                      | End:
+                            | #/* $end ncopy-ys */

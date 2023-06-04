@@ -20,40 +20,64 @@ ncopy:
 	andq %rdx, %rdx
 	jle Done
 	rrmovq %rdx, %r14
-	iaddq $-4, %r14
+	iaddq $-8, %r14
 	jle Loop1
 	
-Loop2: 
+Loop8: 
 	mrmovq (%rdi), %r8	# read val from src...
 	mrmovq 8(%rdi), %r9	# read val from src...
 	mrmovq 16(%rdi), %r10	# read val from src...
 	mrmovq 24(%rdi), %r11	# read val from src...
+	mrmovq 32(%rdi), %r12	# read val from src...
+	mrmovq 40(%rdi), %r13	# read val from src...
+	mrmovq 48(%rdi), %r14	# read val from src...
+	mrmovq 56(%rdi), %rbx	# read val from src...
 	rmmovq %r8, (%rsi)	# ...and store it to dst
 	rmmovq %r9, 8(%rsi)	# ...and store it to dst
 	rmmovq %r10, 16(%rsi)	# ...and store it to dst
 	rmmovq %r11, 24(%rsi)	# ...and store it to dst
+	rmmovq %r12, 32(%rsi)	# ...and store it to dst
+	rmmovq %r13, 40(%rsi)	# ...and store it to dst
+	rmmovq %r14, 48(%rsi)	# ...and store it to dst
+	rmmovq %rbx, 56(%rsi)	# ...and store it to dst
 	andq %r8, %r8		# val <= 0?
-	jle Npos21		# if so, goto Npos:
+	jle Npos81		# if so, goto Npos:
 	iaddq $1, %rax		# count++
-Npos21:	
+Npos81:	
 	andq %r9, %r9		# val <= 0?
-	jle Npos22		# if so, goto Npos:
+	jle Npos82		# if so, goto Npos:
 	iaddq $1, %rax		# count++
-Npos22:	
+Npos82:	
 	andq %r10, %r10		# val <= 0?
-	jle Npos23		# if so, goto Npos:
+	jle Npos83		# if so, goto Npos:
 	iaddq $1, %rax		# count++
-Npos23:	
+Npos83:	
 	andq %r11, %r11		# val <= 0?
-	jle Npos24		# if so, goto Npos:
+	jle Npos84		# if so, goto Npos:
 	iaddq $1, %rax		# count++
-Npos24:
-	iaddq $-4, %rdx
-	iaddq $32, %rdi
-	iaddq $32, %rsi
-	rrmovq %rdx, %r10
-	iaddq $-4, %r10
-	jg Loop2
+Npos84:
+	andq %r12, %r12		# val <= 0?
+	jle Npos85		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos85:	
+	andq %r13, %r13		# val <= 0?
+	jle Npos86		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos86:	
+	andq %r14, %r14		# val <= 0?
+	jle Npos87		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos87:	
+	andq %rbx, %rbx		# val <= 0?
+	jle Npos88		# if so, goto Npos:
+	iaddq $1, %rax		# count++
+Npos88:
+	iaddq $-8, %rdx
+	iaddq $64, %rdi
+	iaddq $64, %rsi
+	irmovq $-8, %r10
+	addq %rdx, %r10
+	jg Loop8
 
 Loop1:	mrmovq (%rdi), %r10	# read val from src...
 	rmmovq %r10, (%rsi)	# ...and store it to dst
